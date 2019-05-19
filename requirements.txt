@@ -1,0 +1,8 @@
+certifi==2019.3.9
+chardet==3.0.4
+idna==2.8
+lxml==4.3.3
+Pillow==6.0.0
+requests==2.22.0
+selenium==3.141.0
+urllib3==1.25.2

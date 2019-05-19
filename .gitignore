@@ -1,0 +1,9 @@
+__pycache__/
+venv/
+.ipynb_checkpoints
+*.ipynb
+.vscode
+
+requirements-dev.txt
+captcha.png
+session.json
