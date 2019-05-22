@@ -19,16 +19,11 @@ def login_google():
     driver.find_element_by_id("identifierNext").click()
 
     driver.implicitly_wait(8)
-    password = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '//input[@type="password"]'))
-    )
+    
     password = WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.XPATH, '//input[@type="password"]'))
     )
 
-    password = driver.find_element_by_xpath(
-        "/html/body/div[1]/div[1]/div[2]/div[2]/div/div/div[2]/div/div[1]/div/form/content/section/div/content/div[1]/div/div[1]/div/div[1]/input"
-    )
     password.send_keys(passwd)
 
     element = driver.find_element_by_id("passwordNext")
