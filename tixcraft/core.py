@@ -4,7 +4,7 @@ from time import sleep
 import requests
 import shutil
 import json
-from tixcraft import config, get
+from tixcraft import config, parser
 from tixcraft.func import pick_funcs
 
 
@@ -72,21 +72,21 @@ def activity_game(source_code):
 
 def ticket_verify(source_code):
     html = etree.HTML(source_code)
-    CSRFTOKEN = get.CSRFTOKEN(html)
-    checkCode = get.checkcode(html)
+    CSRFTOKEN = parser.CSRFTOKEN(html)
+    checkCode = parser.checkcode(html)
 
     data = {"CSRFTOKEN": CSRFTOKEN, "checkCode": checkCode, "confirmed": "true"}
-    url = get.checkcode_url(source_code)
+    url = parser.checkcode_url(source_code)
     r = session.post(url, data=data)
-    url = get.json_url(r.text)
+    url = parser.json_url(r.text)
 
     return "https://tixcraft.com" + url
 
 
 def ticket_area(source_code, rule="highest"):
 
-    areas, price_status = get.areas(source_code)
-    areaUrlList = get.areaUrlList(source_code)
+    areas, price_status = parser.areas(source_code)
+    areaUrlList = parser.areaUrlList(source_code)
 
     rule = config.RULE
     if rule == "HIGHEST" or rule == "LOWEST":
@@ -115,12 +115,17 @@ def show_captcha():
 def ticket_ticket(url, source_code):
     show_captcha()
     html = etree.HTML(source_code)
-    CSRFTOKEN = get.CSRFTOKEN(html)
-    ticketPrice = get.ticketPrice(html)
+    CSRFTOKEN = parser.CSRFTOKEN(html)
+    ticketPrice = parser.ticketPrice(html)
     verifyCode = input("請輸入驗證碼: ")
-    agree = get.agree(source_code)
+    agree = parser.agree(source_code)
 
     ticket_number = config.TICKET_NUMBER
+    optional_number = parser.optional_number(html)
+
+    if ticket_number > optional_number:
+        ticket_number = optional_number
+        print(f"剩餘可選{optional_number}張")
 
     ticket_number = str(ticket_number)
 
@@ -144,7 +149,7 @@ def ticket_check(url, source_code):
     time = int(json_data["time"])
 
     if time == 0:
-        url = get.location_replace(message)
+        url = parser.location_replace(message)
         url = "https://tixcraft.com" + url
     else:
         print(f"請等待: {time}秒")

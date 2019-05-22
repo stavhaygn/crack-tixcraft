@@ -63,6 +63,11 @@ def ticketPrice(html):
     return ticketPrice
 
 
+def optional_number(html):
+    optional_number = int(html.xpath("//option/@value")[-1])
+    return optional_number
+
+
 def agree(source_code):
     agree = re.findall(r"TicketForm\[agree]\[\S+\]", source_code)[0]
     return agree
