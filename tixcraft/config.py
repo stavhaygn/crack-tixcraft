@@ -24,6 +24,6 @@ def set_config(activity_url, **setting):
     RULE = setting.get("rule", func.RANDOM)
 
     if AREA_NAME != "":
-        RULE = func.specific_name_area
+        RULE = func.SPECIFIC_NAME
     elif AREA_PRICE != 0 and AREA_PRICE > 0:
-        RULE = func.specific_price_area
+        RULE = func.SPECIFIC_PRICE
