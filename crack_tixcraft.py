@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
-from tixcraft.core import run
-from tixcraft import func
+from tixcraft.core import TixCraft
+from tixcraft.picker import AreaPicker
 
 
 def get_args():
@@ -30,22 +30,22 @@ def get_args():
     parser.add_argument(
         "-ap", help="area price", dest="area_price", default=0, type=int
     )
-    parser.add_argument("-r", help="pick area rule", dest="rule", default=func.RANDOM)
+    parser.add_argument("-r", help="pick area rule", dest="rule", default="")
     return parser.parse_args()
 
 
 def convert_rule(rule):
     rules = {
-        "hp": func.HIGHEST_PRICE,
-        "lp": func.LOWEST_PRICE,
-        "r": func.RANDOM,
-        "sn": func.SPECIFIC_NAME,
-        "sp": func.SPECIFIC_PRICE,
+        "hp": AreaPicker.HIGHEST_PRICE,
+        "lp": AreaPicker.LOWEST_PRICE,
+        "r": AreaPicker.RANDOM,
+        "sn": AreaPicker.SPECIFIC_NAME,
+        "sp": AreaPicker.SPECIFIC_PRICE,
     }
     try:
         rule = rules[rule]
     except KeyError:
-        rule = func.RANDOM
+        rule = AreaPicker.RANDOM
     return rule
 
 
@@ -61,7 +61,8 @@ def main():
         "rule": convert_rule(args.rule),
     }
 
-    run(activity_url, setting)
+    tixcraft = TixCraft(activity_url, **setting)
+    tixcraft.run()
 
 
 if __name__ == "__main__":
