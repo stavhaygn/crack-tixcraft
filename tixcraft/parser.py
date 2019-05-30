@@ -1,4 +1,6 @@
 from lxml import etree
+import requests
+import shutil
 import json
 import re
 
@@ -26,7 +28,7 @@ def json_url(source_code):
     return json.loads(source_code)["url"]
 
 
-def get_price(area_name):
+def _get_price(area_name):
     price = 0
     try:
         price = int(re.findall(r"\d\d\d+", area_name)[-1])
@@ -39,7 +41,7 @@ def areas(source_code):
     html = etree.HTML(source_code)
     areas_id = html.xpath('//div[@class="zone area-list"]/ul/li/a/@id')
     areas_name = html.xpath('//div[@class="zone area-list"]/ul/li/a/text()')
-    areas_price = [get_price(area_name) for area_name in areas_name]
+    areas_price = [_get_price(area_name) for area_name in areas_name]
     areas_status = html.xpath('//div[@class="zone area-list"]/ul/li/a/font/text()')
     areas_info = list(zip(areas_name, areas_price, areas_status))
     areas = dict(zip(areas_id, areas_info))
@@ -76,3 +78,30 @@ def agree(source_code):
 def location_replace(message):
     url = re.findall(r"replace\(\"[^\"]+", message)[0][9:]
     return url
+
+
+def all_activaties_url():
+    r = requests.get("https://tixcraft.com/activity")
+    html = etree.HTML(r.text)
+    names = html.xpath('//div[@id="selling"]/table/tbody/tr/td/a/text()')
+    urls = html.xpath('//div[@id="selling"]/table/tbody/tr/td/a/@href')
+    urls = ["https://tixcraft.com" + url for url in urls]
+    activities = dict(zip(names, urls))
+    return activities
+
+
+def _event_status(td):
+    td = etree.tostring(td, encoding="unicode")
+    if "已售完" in td or "選購一空" in td:
+        return False
+    return True
+
+
+def events(url):
+    url = url.replace("detail", "game")
+    r = requests.get(url)
+    html = etree.HTML(r.text)
+    times = html.xpath('//tr[@class="gridc fcTxt"]/td[1]/text()')
+    tds = html.xpath('//td[@class="gridc"]')
+    statuses = [_event_status(td) for td in tds]
+    return times, statuses
