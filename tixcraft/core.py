@@ -8,13 +8,6 @@ from tixcraft import parser
 from tixcraft.picker import AreaPicker
 
 
-session = requests.Session()
-
-
-class SessionFileNotFoundError(RuntimeError):
-    pass
-
-
 class NoLoggingError(RuntimeError):
     pass
 
@@ -32,7 +25,7 @@ class UndefinedUrlError(RuntimeError):
 
 
 class TixCraft:
-    def __init__(self, activity_url, **setting):
+    def __init__(self, activity_url, cookies, **setting):
         self.ACTIVITY_URL = activity_url
         self.ACTIVITY_INDEX = setting.get("activity_index", 0)
         self.TICKET_NUMBER = setting.get("ticket_number", 1)
@@ -40,23 +33,23 @@ class TixCraft:
         self.AREA_PRICE = setting.get("area_price", 0)
         self.RULE = setting.get("rule", "")
         self.session = requests.Session()
+        self._load_cookies(cookies)
 
-    def _load_cookies(self):
-        try:
-            with open("session.json") as f:
-                cookies = json.load(f)
-            for cookie in cookies:
-                session.cookies.set(cookie["name"], cookie["value"])
-        except FileNotFoundError:
-            raise SessionFileNotFoundError("檔案session.json不存在")
+    def _load_cookies(self, cookies):
+        for cookie in cookies:
+            self.session.cookies.set(cookie["name"], cookie["value"])
+
+    def _is_lang_zh_tw(self):
+        cookies = self.session.cookies.get_dict()
+        return "zh_tw" in cookies["lang"]
 
     def _set_lang_zh_tw(self):
         r = requests.get("https://tixcraft.com/user/changeLanguage/lang/zh_tw")
         cookies = r.cookies.get_dict()
-        session.cookies.update({'lang': cookies['lang']})
+        self.session.cookies.update({"lang": cookies["lang"]})
 
     def get_username(self):
-        r = session.get("https://tixcraft.com")
+        r = self.session.get("https://tixcraft.com")
         html = etree.HTML(r.text)
         username = html.xpath('//a[@class="user-name"]/text()')
         if not username:
@@ -84,7 +77,7 @@ class TixCraft:
 
         data = {"CSRFTOKEN": CSRFTOKEN, "checkCode": checkCode, "confirmed": "true"}
         url = parser.checkcode_url(source_code)
-        r = session.post(url, data=data)
+        r = self.session.post(url, data=data)
         url = parser.json_url(r.text)
 
         return "https://tixcraft.com" + url
@@ -104,7 +97,7 @@ class TixCraft:
         return "https://tixcraft.com" + url
 
     def show_captcha(self):
-        r = session.get("https://tixcraft.com/ticket/captcha", stream=True)
+        r = self.session.get("https://tixcraft.com/ticket/captcha", stream=True)
         if r.status_code == 200:
             with open("captcha.png", "wb") as f:
                 r.raw.decode_content = True
@@ -163,9 +156,9 @@ class TixCraft:
 
     def request(self, url, data=None):
         if data is None:
-            r = session.get(url)
+            r = self.session.get(url)
         else:
-            r = session.post(url, data=data)
+            r = self.session.post(url, data=data)
         return r.url, r.text
 
     def next_step(self, url, source_code):
@@ -199,9 +192,10 @@ class TixCraft:
         url = self.ACTIVITY_URL
         source_code = ""
 
-        try:
-            self._load_cookies()
+        if not self._is_lang_zh_tw():
             self._set_lang_zh_tw()
+
+        try:
             username = self.get_username()
             print("會員:" + username)
 
