@@ -1,5 +1,8 @@
+from selenium import webdriver
 from argparse import ArgumentParser
+import json
 from tixcraft.core import TixCraft
+from tixcraft.driver import login
 from tixcraft.picker import AreaPicker
 
 
@@ -61,7 +64,9 @@ def main():
         "rule": convert_rule(args.rule),
     }
 
-    tixcraft = TixCraft(activity_url, **setting)
+    driver = webdriver.Chrome()
+    cookies = login(driver)
+    tixcraft = TixCraft(activity_url, cookies, **setting)
     tixcraft.run()
 
 

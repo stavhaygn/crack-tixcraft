@@ -16,6 +16,10 @@ class ActivityIndexError(RuntimeError):
     pass
 
 
+class SoldOutError(RuntimeError):
+    pass
+
+
 class PaymentError(RuntimeError):
     pass
 
@@ -60,15 +64,23 @@ class TixCraft:
         url = url.replace("detail", "game")
         return url
 
-    def activity_game(self, source_code):
+    def activity_game(self, url, source_code):
         html = etree.HTML(source_code)
-        urls = html.xpath('//td[@class="gridc"]/input/@data-href')
         try:
-            url = urls[self.ACTIVITY_INDEX]
+            td = html.xpath('//td[@class="gridc"]')[self.ACTIVITY_INDEX]
         except IndexError:
             raise ActivityIndexError("活動場次索引不存在")
 
-        return "https://tixcraft.com" + url
+        status = etree.tostring(td, encoding="unicode")
+        if "已售完" in status or "選購一空" in status:
+            raise SoldOutError("活動場次已售完")
+        elif "立即訂購" in status:
+            url = td.xpath("input/@data-href")[0]
+            url = "https://tixcraft.com" + url
+        elif "剩餘" in status:
+            pass
+
+        return url
 
     def ticket_verify(self, source_code):
         html = etree.HTML(source_code)
@@ -166,7 +178,7 @@ class TixCraft:
         if "activity/detail" in url:
             url = self.activity_detail(url)
         elif "activity/game" in url:
-            url = self.activity_game(source_code)
+            url = self.activity_game(url, source_code)
         elif "ticket/verify" in url:
             url = self.ticket_verify(source_code)
         elif "ticket/area" in url:
