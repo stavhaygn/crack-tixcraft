@@ -6,6 +6,7 @@ import shutil
 import json
 from tixcraft import parser
 from tixcraft.picker import AreaPicker
+from tixcraft.driver import Verifier
 
 
 class NoLoggingError(RuntimeError):
@@ -29,8 +30,9 @@ class UndefinedUrlError(RuntimeError):
 
 
 class TixCraft:
-    def __init__(self, activity_url, cookies, **setting):
+    def __init__(self, activity_url, driver, cookies, **setting):
         self.ACTIVITY_URL = activity_url
+        self.driver = driver
         self.ACTIVITY_INDEX = setting.get("activity_index", 0)
         self.TICKET_NUMBER = setting.get("ticket_number", 1)
         self.AREA_NAME = setting.get("area_name", "")
@@ -82,17 +84,10 @@ class TixCraft:
 
         return url
 
-    def ticket_verify(self, source_code):
-        html = etree.HTML(source_code)
-        CSRFTOKEN = parser.CSRFTOKEN(html)
-        checkCode = parser.checkcode(html)
-
-        data = {"CSRFTOKEN": CSRFTOKEN, "checkCode": checkCode, "confirmed": "true"}
-        url = parser.checkcode_url(source_code)
-        r = self.session.post(url, data=data)
-        url = parser.json_url(r.text)
-
-        return "https://tixcraft.com" + url
+    def ticket_verify(self, url, source_code):
+        verifier = Verifier(self.driver, self.session, url, source_code)
+        url = verifier.run()
+        return url
 
     def ticket_area(self, source_code, rule="highest"):
 
@@ -180,7 +175,7 @@ class TixCraft:
         elif "activity/game" in url:
             url = self.activity_game(url, source_code)
         elif "ticket/verify" in url:
-            url = self.ticket_verify(source_code)
+            url = self.ticket_verify(url, source_code)
         elif "ticket/area" in url:
             url = self.ticket_area(source_code)
         elif "ticket/ticket" in url:

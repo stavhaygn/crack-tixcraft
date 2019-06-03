@@ -66,7 +66,7 @@ def main():
 
     driver = webdriver.Chrome()
     cookies = login(driver)
-    tixcraft = TixCraft(activity_url, cookies, **setting)
+    tixcraft = TixCraft(activity_url, driver, cookies, **setting)
     tixcraft.run()
 
 
