@@ -9,12 +9,14 @@ class NoFreeAreaError(RuntimeError):
     pass
 
 
-def CSRFTOKEN(html):
+def CSRFTOKEN(source_code):
+    html = etree.HTML(source_code)
     CSRFTOKEN = html.xpath('//input[@name="CSRFTOKEN"]/@value')[0]
     return CSRFTOKEN
 
 
-def checkcode(html):
+def checkcode(source_code):
+    html = etree.HTML(source_code)
     return html.xpath("//font/text()")[-1]
 
 
@@ -60,12 +62,14 @@ def areaUrlList(source_code):
     return areaUrlList
 
 
-def ticketPrice(html):
+def ticketPrice(source_code):
+    html = etree.HTML(source_code)
     ticketPrice = html.xpath('//tr[@class="gridc"]/td/select/@name')[0]
     return ticketPrice
 
 
-def optional_number(html):
+def optional_number(source_code):
+    html = etree.HTML(source_code)
     optional_number = int(html.xpath("//option/@value")[-1])
     return optional_number
 

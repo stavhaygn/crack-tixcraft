@@ -115,14 +115,13 @@ class TixCraft:
 
     def ticket_ticket(self, url, source_code):
         self.show_captcha()
-        html = etree.HTML(source_code)
-        CSRFTOKEN = parser.CSRFTOKEN(html)
-        ticketPrice = parser.ticketPrice(html)
+        CSRFTOKEN = parser.CSRFTOKEN(source_code)
+        ticketPrice = parser.ticketPrice(source_code)
         verifyCode = input("請輸入驗證碼: ")
         agree = parser.agree(source_code)
 
         ticket_number = self.TICKET_NUMBER
-        optional_number = parser.optional_number(html)
+        optional_number = parser.optional_number(source_code)
 
         if ticket_number > optional_number:
             ticket_number = optional_number
