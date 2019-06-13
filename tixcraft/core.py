@@ -4,9 +4,9 @@ from time import sleep
 import requests
 import shutil
 import json
-from tixcraft import parser
 from tixcraft.picker import AreaPicker
-from tixcraft.driver import Verifier
+from tixcraft.verify import Verifier
+from tixcraft import parser
 
 
 class NoLoggingError(RuntimeError):
@@ -85,12 +85,11 @@ class TixCraft:
         return url
 
     def ticket_verify(self, url, source_code):
-        verifier = Verifier(self.driver, self.session, url, source_code)
-        url = verifier.run()
+        verifier = Verifier(self.session, source_code)
+        url = verifier.run(self.driver, url)
         return url
 
     def ticket_area(self, source_code, rule="highest"):
-
         areas, price_status = parser.areas(source_code)
         areaUrlList = parser.areaUrlList(source_code)
 
