@@ -29,9 +29,8 @@ class UndefinedUrlError(RuntimeError):
 
 
 class TixCraft:
-    def __init__(self, activity_url, driver, cookies, **setting):
+    def __init__(self, activity_url, cookies, **setting):
         self.ACTIVITY_URL = activity_url
-        self.driver = driver
         self.ACTIVITY_INDEX = setting.get("activity_index", 0)
         self.TICKET_NUMBER = setting.get("ticket_number", 1)
         self.AREA_NAME = setting.get("area_name", "")
@@ -85,7 +84,7 @@ class TixCraft:
 
     def ticket_verify(self, url, source_code):
         verifier = Verifier(self.session, source_code)
-        url = verifier.run(self.driver, url)
+        url = verifier.run(url)
         return url
 
     def ticket_area(self, source_code, rule="highest"):

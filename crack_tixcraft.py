@@ -3,7 +3,7 @@ from selenium import webdriver
 import json
 from tixcraft.picker import AreaPicker
 from tixcraft.core import TixCraft
-from tixcraft.driver import login
+from tixcraft.utils import login
 
 
 def get_args():
@@ -46,6 +46,20 @@ def convert_rule(rule):
     return rule
 
 
+def save_cookie(cookies):
+    with open("session.json", "w") as f:
+        json.dump(cookies, f)
+
+
+def load_cookies():
+    try:
+        with open("session.json") as f:
+            cookies = json.load(f)
+    except FileNotFoundError:
+        cookies = None
+    return cookies
+
+
 def main():
     args = get_args()
 
@@ -58,9 +72,12 @@ def main():
         "rule": convert_rule(args.rule),
     }
 
-    driver = webdriver.Chrome()
-    cookies = login(driver)
-    tixcraft = TixCraft(activity_url, driver, cookies, **setting)
+    cookies = load_cookies()
+    if cookies is None:
+        cookies = login()
+        save_cookie(cookies)
+
+    tixcraft = TixCraft(activity_url, cookies, **setting)
     tixcraft.run()
 
 

@@ -3,7 +3,7 @@ from multiprocessing import Pool
 from lxml import etree
 import os
 import re
-from tixcraft.driver import user_verify
+from tixcraft.utils import user_verify, session_to_driver
 from tixcraft import parser
 
 
@@ -178,16 +178,26 @@ class Verifier:
         print("checkCode:", result["checkCode"])
         return url
 
-    def run(self, driver, verify_url):
+    def run(self, url, driver=None):
         result = self._copy_paste()
         if result:
             url = self._result(result)
             return "https://tixcraft.com" + url
 
-        result = self._choice()
-        if result:
-            url = self._result(result)
-            return "https://tixcraft.com" + url
+        try:
+            result = self._choice()
+            if result:
+                url = self._result(result)
+                return "https://tixcraft.com" + url
+        except:
+            pass
 
-        url = self._undefined(driver, verify_url)
+        _quit = False
+        if driver is None:
+            driver = session_to_driver(self.session)
+            _quit = True
+
+        url = self._undefined(driver, url)
+        if _quit:
+            driver.quit()
         return url
