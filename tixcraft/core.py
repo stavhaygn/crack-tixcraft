@@ -1,9 +1,8 @@
 from lxml import etree
-from PIL import Image
 from time import sleep
 import requests
-import shutil
 import json
+from tixcraft.recaptcha import Recaptcha
 from tixcraft.picker import AreaPicker
 from tixcraft.verify import Verifier
 from tixcraft import parser
@@ -102,21 +101,10 @@ class TixCraft:
         url = picker.pick_area()
         return "https://tixcraft.com" + url
 
-    def show_captcha(self):
-        r = self.session.get("https://tixcraft.com/ticket/captcha", stream=True)
-        if r.status_code == 200:
-            with open("captcha.png", "wb") as f:
-                r.raw.decode_content = True
-                shutil.copyfileobj(r.raw, f)
-
-            image = Image.open("captcha.png")
-            image.show()
-
     def ticket_ticket(self, url, source_code):
-        self.show_captcha()
         CSRFTOKEN = parser.CSRFTOKEN(source_code)
         ticketPrice = parser.ticketPrice(source_code)
-        verifyCode = input("請輸入驗證碼: ")
+        verifyCode = Recaptcha(self.session).run()
         agree = parser.agree(source_code)
 
         ticket_number = self.TICKET_NUMBER
