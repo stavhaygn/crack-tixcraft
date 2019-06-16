@@ -1,67 +1,45 @@
-Crack-tixCraft
+Crack-tixCraft 
 ===
-Automatically buy tickets.
+[![](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/)
+[![](https://img.shields.io/github/license/stavhaygn/crack-tixcraft.svg)](https://github.com/stavhaygn/crack-tixcraft/blob/master/LICENSE)
+<br>
+Tixcraft自動購票系統，實作verify選擇題猜測，驗證碼辨識。
 
-Usage
+使用說明
 ---
-
-### From module
-
-```python=
-from tixcraft.core import run
-
-setting = {
-        "activity_index": activity_index,
-        "ticket_number": ticket_number,
-        "area_name": area_name,
-        "area_price": area_price,
-        "rule": rule,
-}
-
-run("https://tixcraft.com/activity/detail/19_Ann", setting)
-```
-
-### Command line usage
-
-If there isn't `session.json` in directory, follow below steps.
-The first, modify email and passwd variable in `secret.py`,
-and the second, run `login_tixcraft.py` to login tixcraft and save the session.json.
-```
-$ python login_tixcraft.py
-```
-
-Finally, you have `session.json`, and then run `crack_tixcraft.py`
+-url 欲自動購票的活動網址<br>
 ```
 $ python crack_tixcraft.py -url https://tixcraft.com/activity/detail/19_Ann
+Using TensorFlow backend.
 會員: [G+] [測試員]
-請輸入驗證碼: fevo
+辨識驗證碼: twai
 請等待: 5秒
 Good
 ```
 
-### Command line options
+### 命令列參數
 
 ```
 $ python crack_tixcraft.py -h
+Using TensorFlow backend.
 usage: crack_tixcraft.py [-h] -url ACTIVITY_URL [-i ACTIVITY_INDEX]
                          [-n TICKET_NUMBER] [-an AREA_NAME] [-ap AREA_PRICE]
                          [-r RULE]
 
 optional arguments:
   -h, --help         show this help message and exit
-  -url ACTIVITY_URL  activity url, such as
-                     https://tixcraft.com/activity/detail/19_Ann
-  -i ACTIVITY_INDEX  activity index (default "0")
-  -n TICKET_NUMBER   ticket number (default "1")
-  -an AREA_NAME      area name
-  -ap AREA_PRICE     area price
-  -r RULE            pick area rule
+  -url ACTIVITY_URL  活動URL (例如 "https://tixcraft.com/activity/detail/19_Ann")
+  -i ACTIVITY_INDEX  活動場次索引 (預設 "0")
+  -n TICKET_NUMBER   購買票數 (預設 "1")
+  -an AREA_NAME      區域名稱 (例如 "藍203")
+  -ap AREA_PRICE     區域售價 (例如 "2880")
+  -r RULE            區域選取規則 ("hp" 選擇最高售價區域 | "lp" 選擇最低售價區域)
 ```
 
-Requirements
+環境需求
 ---
-You need Python 3.6 or later to run crack-tixcraft.
+Python3.6、[ChromeDriver](http://chromedriver.chromium.org/)
 
 License
 ---
-MIT License
+[MIT License](https://github.com/stavhaygn/crack-tixcraft/blob/master/LICENSE)

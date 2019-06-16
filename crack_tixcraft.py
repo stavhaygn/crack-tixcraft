@@ -1,9 +1,9 @@
-from selenium import webdriver
 from argparse import ArgumentParser
+from selenium import webdriver
 import json
+from tixcraft.picker import AreaPicker
 from tixcraft.core import TixCraft
 from tixcraft.driver import login
-from tixcraft.picker import AreaPicker
 
 
 def get_args():
@@ -11,29 +11,23 @@ def get_args():
     parser = ArgumentParser()
     parser.add_argument(
         "-url",
-        help="activity url, such as https://tixcraft.com/activity/detail/19_Ann",
+        help='活動URL (例如 "https://tixcraft.com/activity/detail/19_Ann")',
         dest="activity_url",
         required=True,
     )
     parser.add_argument(
-        "-i",
-        help='activity index (default "0")',
-        dest="activity_index",
-        default=0,
-        type=int,
+        "-i", help='活動場次索引 (預設 "0")', dest="activity_index", default=0, type=int
     )
     parser.add_argument(
-        "-n",
-        help='ticket number (default "1")',
-        dest="ticket_number",
-        default=1,
-        type=int,
+        "-n", help='購買票數 (預設 "1")', dest="ticket_number", default=1, type=int
     )
-    parser.add_argument("-an", help="area name", dest="area_name", default="")
+    parser.add_argument("-an", help='區域名稱 (例如 "藍203")', dest="area_name", default="")
     parser.add_argument(
-        "-ap", help="area price", dest="area_price", default=0, type=int
+        "-ap", help='區域售價 (例如 "2880")', dest="area_price", default=0, type=int
     )
-    parser.add_argument("-r", help="pick area rule", dest="rule", default="")
+    parser.add_argument(
+        "-r", help='區域選取規則 ("hp" 選擇最高售價區域 | "lp" 選擇最低售價區域)', dest="rule", default=""
+    )
     return parser.parse_args()
 
 

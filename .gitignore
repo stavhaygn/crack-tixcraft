@@ -3,7 +3,8 @@ venv/
 .ipynb_checkpoints
 *.ipynb
 .vscode
+dist
+build
+debug.log
 
-requirements-dev.txt
-captcha.png
 session.json
