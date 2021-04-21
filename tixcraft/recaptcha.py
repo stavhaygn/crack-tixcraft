@@ -1,10 +1,10 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 from keras.models import load_model
-import tensorflow as tf
 from PIL import Image
 import numpy as np
 
-graph = tf.get_default_graph()
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 try:
     font_model = load_model("./models/Font_model.h5", compile=False)
@@ -40,14 +40,12 @@ class Recaptcha:
         return data
 
     def _recognize_font(self, data):
-        with graph.as_default():
-            evaluate = font_model.predict(data)
+        evaluate = font_model.predict(data)
         font = FONT_DECODE[evaluate.argmax()]
         return font
 
     def _recognize_captcha(self, char_model, data):
-        with graph.as_default():
-            evaluates = char_model.predict(data)
+        evaluates = char_model.predict(data)
         indexes = [evaluate.argmax() for evaluate in evaluates]
         captcha = "".join([chr(index + 0x61) for index in indexes])
         return captcha
